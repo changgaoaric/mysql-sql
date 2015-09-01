@@ -1,0 +1,22 @@
+SELECT p.name product,b.name branch,CONCAT(e.fname,' ',e.lname) NAME,
+account_groups.tot_deposits
+FROM 
+(SELECT product_cd,open_branch_id branch_id,open_emp_id emp_id,SUM(avail_balance) tot_deposits
+FROM account GROUP BY product_cd,open_branch_id,open_emp_id) account_groups
+INNER JOIN employee e ON e.`emp_id`=account_groups.emp_id
+INNER JOIN branch b ON b.`branch_id`=account_groups.branch_id
+INNER JOIN product p ON p.`product_cd`=account_groups.product_cd
+WHERE p.`product_type_cd`='ACCOUNT';
+
+
+SELECT all_prods.product,all_prods.branch,all_prods.name,all_prods.tot_deposits
+FROM
+ (SELECT
+    (SELECT p.name FROM product p WHERE p.`product_cd` = a.product_cd AND p.`product_type_cd` = 'ACCOUNT') product,
+    (SELECT b.name FROM branch b WHERE b.branch_id = a.open_branch_id) branch,
+    (SELECT CONCAT(e.fname,' ',e.lname) FROM employee e WHERE e.`emp_id`=a.open_emp_id) NAME,
+  SUM(a.avail_balance) tot_deposits
+FROM account a
+GROUP BY a.product_cd,a.open_branch_id,a.open_emp_id) all_prods
+WHERE all_prods.product IS NOT NULL
+ORDER BY 1,2;
