@@ -29,3 +29,16 @@ SELECT
 SUM(a.avail_balance) tot_deposits
 FROM account a
 GROUP BY a.`product_cd`,a.`open_branch_id`,a.`open_emp_id` ORDER BY 1,2;
+
+
+语句4（语句3基础上去掉NULL值）
+
+SELECT tot.product,tot.branch,tot.name,tot.tot_deposits FROM
+(SELECT
+( SELECT p.name FROM product p WHERE p.product_cd=a.product_cd AND product_type_cd='ACCOUNT') product,
+(SELECT b.name FROM branch b WHERE b.branch_id=a.open_branch_id) branch,
+(SELECT CONCAT(e.fname,' ',e.lname) FROM employee e WHERE e.emp_id = a.open_emp_id ) NAME,
+SUM(a.avail_balance) tot_deposits
+FROM account a
+GROUP BY a.`product_cd`,a.`open_branch_id`,a.`open_emp_id`) tot
+WHERE tot.product IS NOT NULL ORDER BY 1,2;
