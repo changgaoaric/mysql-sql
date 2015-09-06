@@ -1,0 +1,3 @@
+1,creare the simple view
+CREATE VIEW customer_vw (cust_id,fed_id,cust_type_cd,address,city,state,zipcode) AS SELECT cust_id,CONCAT('ends in',SUBSTR(fed_id, 8, 4)) fed_id,
+cust_type_cd,address,city,state,postal_code FROM customer;
