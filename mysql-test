@@ -42,3 +42,21 @@ SUM(a.avail_balance) tot_deposits
 FROM account a
 GROUP BY a.`product_cd`,a.`open_branch_id`,a.`open_emp_id`) tot
 WHERE tot.product IS NOT NULL ORDER BY 1,2;
+
+
+语句5（利用子查询提高查询速度）
+
+Sql代码  收藏代码
+    SELECT ps.* FROM cdb_playsgame ps WHERE ps.credits=(select MAX(credits)   
+    FROM cdb_playsgame ps1   
+    where ps.uid=ps1.uid AND ps.gametag=ps1.gametag) AND ps.gametag='yeti3'   
+    GROUP BY ps.uid order by ps.credits desc LIMIT 100;  
+
+
+Sql代码  收藏代码
+    SELECT ps.*   
+    FROM cdb_playsgame ps,(select ps1.uid, ps1.gametag, MAX(credits) as credits  
+    FROM cdb_playsgame ps1 group by uid,gametag) t  
+    WHERE ps.credits=t.credits AND ps.uid=t.uid AND ps.gametag=t.gametag AND ps.gametag='yeti3'   
+    GROUP BY ps.uid order by ps.credits desc LIMIT 100;  
+执行时间仅为0.22秒，比原来的25秒提高了10000倍 
