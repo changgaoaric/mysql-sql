@@ -15,3 +15,8 @@ jaypark     旅游频  寻驴友去西藏。。
 本例以 ph_interestgroupitem （帖子表）为基表，左连接了 ph_user （用户表）、ph_interestgroup（兴趣组表），
 
 查询出当前贴子发言人的信息和帖子所属兴趣组的信息。
+
+
+语句2 （查询不同部门的总人数）
+SELECT d.dept_id,d.name,e.how_many num_employees FROM department d LEFT JOIN
+( SELECT dept_id,COUNT(*) how_many FROM employee GROUP BY dept_id) e ON e.dept_id = d.dept_id;
