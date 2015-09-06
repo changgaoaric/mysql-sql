@@ -1,0 +1,17 @@
+SQL语句
+
+SELECT * FROM (
+SELECT u.username , ig.title , igp.content 
+FROM ph_interestgroupitem igp
+LEFT JOIN ph_user u ON igp.uid = u.userid
+LEFT JOIN ph_interestgroup ig ON igp.groupid = ig.id
+)js
+WHERE js.username = 'jaypark' ;
+
+Result：
+Username    Title   Content
+jaypark     旅游频  寻驴友去西藏。。
+
+本例以 ph_interestgroupitem （帖子表）为基表，左连接了 ph_user （用户表）、ph_interestgroup（兴趣组表），
+
+查询出当前贴子发言人的信息和帖子所属兴趣组的信息。
