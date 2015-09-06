@@ -116,3 +116,16 @@ Sql代码  收藏代码
     GROUP BY ps.uid  
     ORDER BY credits DESC  
     LIMIT 0 , 50 ；
+
+
+语句7（from里的子查询）
+
+SELECT PLAYERNO,NAME,NUMBER  
+FROM (SELECT PLAYERNO,NAME,  
+             (SELECT COUNT(*)  
+              FROM PENALTIES  
+              WHERE PENALTIES.PLAYERNO =  
+                    PLAYERS.PLAYERNO)  
+              AS NUMBER  
+       FROM PLYERS) AS PN  
+WHERE NUMBER>=2 
