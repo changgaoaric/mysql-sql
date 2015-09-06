@@ -60,3 +60,59 @@ Sql代码  收藏代码
     WHERE ps.credits=t.credits AND ps.uid=t.uid AND ps.gametag=t.gametag AND ps.gametag='yeti3'   
     GROUP BY ps.uid order by ps.credits desc LIMIT 100;  
 执行时间仅为0.22秒，比原来的25秒提高了10000倍 
+
+
+语句6
+
+查询当天游戏最好成绩
+Sql代码  收藏代码
+     SELECT ps. * , mf. * , m.username  
+    FROM cdb_playsgame ps  
+    LEFT JOIN cdb_memberfields mf ON mf.uid = ps.uid  
+    LEFT JOIN cdb_members m ON m.uid = ps.uid  
+    WHERE ps.gametag = 'chuansj'  
+    AND FROM_UNIXTIME( ps.dateline, '%Y%m%d' ) = '20081008'  
+    AND ps.credits = (  
+    SELECT MAX( ps1.credits )  
+    FROM cdb_playsgame ps1  
+    WHERE ps.uid = ps1.uid  
+    AND ps1.gametag = 'chuansj'  
+    AND FROM_UNIXTIME( ps1.dateline, '%Y%m%d' ) = '20081008' )  
+    GROUP BY ps.uid  
+    ORDER BY credits DESC  
+    LIMIT 0 , 50   
+像查询里
+Sql代码  收藏代码
+
+    AND ps.credits=(SELECT MAX(ps1.credits)   
+      FROM {$tablepre}playsgame ps1 where ps.uid=ps1.uid AND ps1.gametag = '$game'    
+      AND FROM_UNIXTIME(ps1.dateline, '%Y%m%d') = '$todaytime'  )  
+
+
+特别消耗时间
+
+另外，像：
+Sql代码  收藏代码
+    FROM_UNIXTIME(ps1.dateline, '%Y%m%d') = '$todaytime'  
+这样的语句会导致索引无效，因为对每个dataline的值都需要用函数计算一遍，需要调整为：
+Sql代码  收藏代码
+    AND ps1.dateline >= UNIX_TIMESTAMP('$todaytime')    
+//更改后
+Sql代码  收藏代码
+     SELECT ps. * , mf. * , m.username  
+    FROM cdb_playsgame ps, cdb_memberfields mf, cdb_members m, (  
+      
+    SELECT ps1.uid, MAX( ps1.credits ) AS credits  
+    FROM cdb_playsgame ps1  
+    WHERE ps1.gametag = 'chuansj'  
+    AND ps1.dateline >= UNIX_TIMESTAMP( '20081008' )  
+    GROUP BY ps1.uid  
+    ) AS t  
+    WHERE mf.uid = ps.uid  
+    AND m.uid = ps.uid  
+    AND ps.gametag = 'chuansj'  
+    AND ps.credits = t.credits  
+    AND ps.uid = t.uid  
+    GROUP BY ps.uid  
+    ORDER BY credits DESC  
+    LIMIT 0 , 50 ；
