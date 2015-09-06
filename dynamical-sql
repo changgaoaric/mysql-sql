@@ -1,0 +1,5 @@
+1,sql语句以字符串形式提交
+
+SET @qry = 'select cust_id,cust_type_cd,fed_id from customer';
+PREPARE dynsqll FROM @qry;
+EXECUTE dynsqll;
